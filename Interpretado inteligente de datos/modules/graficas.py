@@ -1,12 +1,25 @@
 import matplotlib.pyplot as plt
 import numpy as np
 
+from modules.deteccion import (
+    detectar_anomalias,
+    detectar_cambios_tendencia,
+    evaluar_modelo_global,
+)
 
-def graficar_global(datos, resultado_global, anomalias, evaluacion=None):
+
+def graficar_global(datos, resultado_global, anomalias=None, evaluacion=None):
     """
     Gráfica 1: Muestra las ganancias registradas, la recta lineal global
-    y las posibles anomalías detectadas.
+    y las posibles anomalías. Si no se pasan anomalías o evaluación,
+    las calcula directamente desde modules.deteccion.
     """
+    if evaluacion is None:
+        evaluacion = evaluar_modelo_global(datos, resultado_global)
+
+    if anomalias is None:
+        anomalias = detectar_anomalias(datos, resultado_global)
+
     x = np.asarray(datos["x"], dtype=float)
     y = np.asarray(datos["y"], dtype=float)
     nombre_x = datos.get("nombre_x", "Período")
@@ -40,7 +53,7 @@ def graficar_global(datos, resultado_global, anomalias, evaluacion=None):
             label="Anomalías detectadas",
         )
 
-    r2_mostrar = evaluacion["r2"] if evaluacion else resultado_global.get("r2", 0.0)
+    r2_mostrar = evaluacion["r2"]
     tendencia = resultado_global.get("tendencia", "")
 
     plt.title(f"Balance Global de Ganancias — {tendencia} (R² = {r2_mostrar:.2f})")
@@ -52,11 +65,22 @@ def graficar_global(datos, resultado_global, anomalias, evaluacion=None):
     plt.show()
 
 
-def graficar_local(datos, resultados_locales, anomalias, cambios, ventana=4):
+def graficar_local(
+    datos, resultados_locales, anomalias=None, cambios=None, resultado_global=None, ventana=4
+):
     """
     Gráfica 2: Muestra las ganancias, las rectas lineales de cada ventana local,
-    los cambios de tendencia y las anomalías.
+    los cambios de tendencia y las anomalías. Si no se pasan anomalías o cambios,
+    los obtiene directamente desde modules.deteccion.
     """
+    if anomalias is None and resultado_global is not None:
+        anomalias = detectar_anomalias(datos, resultado_global)
+    elif anomalias is None:
+        anomalias = []
+
+    if cambios is None:
+        cambios = detectar_cambios_tendencia(resultados_locales, datos, ventana=ventana)
+
     x = np.asarray(datos["x"], dtype=float)
     y = np.asarray(datos["y"], dtype=float)
     nombre_x = datos.get("nombre_x", "Período")
