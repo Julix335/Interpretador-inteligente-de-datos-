@@ -4,6 +4,7 @@ import numpy as np
 from modules.deteccion import (
     detectar_anomalias,
     detectar_cambios_tendencia,
+    detectar_saltos_tiempo,
     evaluar_modelo_global,
 )
 
@@ -11,8 +12,7 @@ from modules.deteccion import (
 def graficar_global(datos, resultado_global, anomalias=None, evaluacion=None):
     """
     Gráfica 1: Muestra las ganancias registradas, la recta lineal global
-    y las posibles anomalías. Si no se pasan anomalías o evaluación,
-    las calcula directamente desde modules.deteccion.
+    y las posibles anomalías.
     """
     if evaluacion is None:
         evaluacion = evaluar_modelo_global(datos, resultado_global)
@@ -20,8 +20,15 @@ def graficar_global(datos, resultado_global, anomalias=None, evaluacion=None):
     if anomalias is None:
         anomalias = detectar_anomalias(datos, resultado_global)
 
+    saltos = detectar_saltos_tiempo(datos)
+
     x = np.asarray(datos["x"], dtype=float)
     y = np.asarray(datos["y"], dtype=float)
+
+    orden = np.argsort(x)
+    x = x[orden]
+    y = y[orden]
+
     nombre_x = datos.get("nombre_x", "Período")
     nombre_y = datos.get("nombre_y", "Ganancia ($)")
 
@@ -55,8 +62,9 @@ def graficar_global(datos, resultado_global, anomalias=None, evaluacion=None):
 
     r2_mostrar = evaluacion["r2"]
     tendencia = resultado_global.get("tendencia", "")
+    aviso_salto = " | Con saltos de tiempo" if saltos else ""
 
-    plt.title(f"Balance Global de Ganancias — {tendencia} (R² = {r2_mostrar:.2f})")
+    plt.title(f"Balance Global de Ganancias — {tendencia} (R² = {r2_mostrar:.2f}){aviso_salto}")
     plt.xlabel(nombre_x)
     plt.ylabel(nombre_y)
     plt.grid(True, linestyle="--", alpha=0.4)
@@ -70,8 +78,7 @@ def graficar_local(
 ):
     """
     Gráfica 2: Muestra las ganancias, las rectas lineales de cada ventana local,
-    los cambios de tendencia y las anomalías. Si no se pasan anomalías o cambios,
-    los obtiene directamente desde modules.deteccion.
+    los cambios de tendencia y las anomalías.
     """
     if anomalias is None and resultado_global is not None:
         anomalias = detectar_anomalias(datos, resultado_global)
@@ -81,8 +88,15 @@ def graficar_local(
     if cambios is None:
         cambios = detectar_cambios_tendencia(resultados_locales, datos, ventana=ventana)
 
+    saltos = detectar_saltos_tiempo(datos)
+
     x = np.asarray(datos["x"], dtype=float)
     y = np.asarray(datos["y"], dtype=float)
+
+    orden = np.argsort(x)
+    x = x[orden]
+    y = y[orden]
+
     nombre_x = datos.get("nombre_x", "Período")
     nombre_y = datos.get("nombre_y", "Ganancia ($)")
 
@@ -131,7 +145,8 @@ def graficar_local(
             label="Anomalías detectadas",
         )
 
-    plt.title("Análisis Local de Tendencias por Ventanas")
+    aviso_salto = " (con saltos de tiempo)" if saltos else ""
+    plt.title(f"Análisis Local de Tendencias por Ventanas{aviso_salto}")
     plt.xlabel(nombre_x)
     plt.ylabel(nombre_y)
     plt.grid(True, linestyle="--", alpha=0.4)
