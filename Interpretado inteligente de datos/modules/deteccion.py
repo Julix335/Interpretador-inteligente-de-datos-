@@ -129,3 +129,33 @@ def detectar_cambios_tendencia(resultados_locales, datos, ventana=4):
             })
 
     return cambios
+
+
+def detectar_saltos_tiempo(datos, umbral_salto=1.0):
+    """
+    Detecta saltos irregulares en el eje X (por ejemplo, pasar del año 1 al año 5).
+    """
+    x = np.asarray(datos["x"], dtype=float)
+    nombre_x = datos.get("nombre_x", "Período")
+    saltos = []
+
+    if len(x) < 2:
+        return saltos
+
+    orden = np.argsort(x)
+    x_ord = x[orden]
+    deltas_x = np.diff(x_ord)
+
+    for i, dx in enumerate(deltas_x):
+        if dx > umbral_salto:
+            saltos.append({
+                "x_origen": float(x_ord[i]),
+                "x_destino": float(x_ord[i + 1]),
+                "salto": float(dx),
+                "mensaje": (
+                    f"Salto en {nombre_x}: de {x_ord[i]:g} a {x_ord[i + 1]:g} "
+                    f"(separación de {dx:g} unidades en el eje horizontal)."
+                ),
+            })
+
+    return saltos
