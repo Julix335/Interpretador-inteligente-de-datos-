@@ -30,8 +30,8 @@ def solicitar_cantidad():
                 input("\n¿Cuántos puntos desea ingresar?: ")
             )
 
-            if cantidad <= 0:
-                print("La cantidad debe ser mayor que cero.")
+            if cantidad < 2:
+                print("La cantidad debe mayor que uno.")
                 continue
 
             return cantidad
@@ -114,9 +114,18 @@ def main():
 
     # --- Bloque de análisis, evaluación, detección y gráficas ---
     resultado_global = analisis_global(datos)
+
+    print("\n===== ANALISIS GLOBAL =====")
+    print("Modelo:", resultado_global["modelo"])
+    print("Pendiente:", resultado_global["pendiente"])
+    print("Intercepción:", resultado_global["intercepcion"])
+    print("R²:", resultado_global["r2"])
+    print("Tendencia:", resultado_global["tendencia"])
     
+    ventana = 4
+
     try:
-        resultados_locales = analisis_local(datos)
+        resultados_locales = analisis_local(datos, ventana=ventana)
     except ValueError as error:
         print("\nAviso:", error)
         resultados_locales = []
