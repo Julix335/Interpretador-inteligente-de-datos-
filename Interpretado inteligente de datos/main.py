@@ -15,8 +15,10 @@ from modules.analisis import (
 analisis_global, 
 analisis_local
 )
-from modules.graficas import graficar_global, graficar_local
-
+from modules.graficas import (
+graficar_global, 
+graficar_local
+)
 
 def solicitar_cantidad():
     """
