@@ -1,3 +1,4 @@
+
 from modules.validacion import (
     validar_nombre,
     validar_punto
@@ -5,7 +6,6 @@ from modules.validacion import (
 
 
 def crear_conjunto(nombre_x, nombre_y):
-
     datos = {
         "nombre_x": validar_nombre(nombre_x),
         "nombre_y": validar_nombre(nombre_y),
@@ -19,14 +19,17 @@ def crear_conjunto(nombre_x, nombre_y):
 
 
 def agregar_punto(datos, x, y):
-
+    # Validar los valores ingresados
     x, y = validar_punto(x, y, datos)
+
+    # Guardar el último valor de X ingresado
     datos["ultimo_x"] = x
 
+    # Agregar los valores a sus respectivas listas
     datos["x"].append(x)
     datos["y"].append(y)
 
-    # Ordenar los puntos según X
+    # Organizar los puntos según el valor de X
     puntos = sorted(zip(datos["x"], datos["y"]))
 
     datos["x"] = [punto[0] for punto in puntos]
@@ -42,7 +45,6 @@ def agregar_punto(datos, x, y):
 
 
 def mostrar_datos(datos):
-
     print("\n========== DICCIONARIO ==========")
     print(datos)
 
@@ -51,15 +53,10 @@ def mostrar_datos(datos):
     for fila in datos["matriz"]:
         print(fila)
 
+
 def contar_puntos(datos):
-    """
-    Cuenta la cantidad de puntos registrados.
-    """
     return len(datos["x"])
 
 
 def consultar_puntos(datos):
-    """
-    Devuelve todos los puntos almacenados.
-    """
     return list(zip(datos["x"], datos["y"]))
