@@ -1,48 +1,65 @@
-import math
+from modules.validacion import (
+    validar_nombre,
+    validar_punto
+)
 
-def validar_nombre(nombre):
+
+def crear_conjunto(nombre_x, nombre_y):
+
+    datos = {
+        "nombre_x": validar_nombre(nombre_x),
+        "nombre_y": validar_nombre(nombre_y),
+        "x": [],
+        "y": [],
+        "matriz": [],
+        "ultimo_x": None
+    }
+
+    return datos
+
+
+def agregar_punto(datos, x, y):
+
+    x, y = validar_punto(x, y, datos)
+    datos["ultimo_x"] = x
+
+    datos["x"].append(x)
+    datos["y"].append(y)
+
+    # Ordenar los puntos según X
+    puntos = sorted(zip(datos["x"], datos["y"]))
+
+    datos["x"] = [punto[0] for punto in puntos]
+    datos["y"] = [punto[1] for punto in puntos]
+
+    # Actualizar la matriz
+    datos["matriz"] = [
+        [punto[0], punto[1]]
+        for punto in puntos
+    ]
+
+    return datos
+
+
+def mostrar_datos(datos):
+
+    print("\n========== DICCIONARIO ==========")
+    print(datos)
+
+    print("\n========== MATRIZ ==========")
+
+    for fila in datos["matriz"]:
+        print(fila)
+
+def contar_puntos(datos):
     """
-    Comprueba que el nombre de una variable
-    no esté vacío.
+    Cuenta la cantidad de puntos registrados.
     """
-    if not isinstance(nombre, str) or not nombre.strip():
-        raise ValueError("El nombre no puede estar vacío.")
-
-    return nombre.strip()
+    return len(datos["x"])
 
 
-def validar_numero(valor, nombre_variable):
+def consultar_puntos(datos):
     """
-    Comprueba que el valor ingresado sea
-    un número válido y finito.
+    Devuelve todos los puntos almacenados.
     """
-    try:
-        numero = float(valor)
-
-    except (ValueError, TypeError):
-        raise ValueError(
-            f"{nombre_variable} debe ser numérico."
-        )
-
-    if not math.isfinite(numero):
-        raise ValueError(
-            f"{nombre_variable} debe ser un número finito."
-        )
-
-    return numero
-
-
-def validar_punto(x, y, datos):
-    """
-    Valida las coordenadas X y Y y evita
-    que se repita un valor de X.
-    """
-    x = validar_numero(x, "X")
-    y = validar_numero(y, "Y")
-
-    if x in datos["x"]:
-        raise ValueError(
-            "Ya existe un punto con ese valor de X."
-        )
-
-    return x, y
+    return list(zip(datos["x"], datos["y"]))
