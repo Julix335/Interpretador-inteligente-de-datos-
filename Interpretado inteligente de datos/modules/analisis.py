@@ -145,8 +145,10 @@ def analisis_local(datos, ventana = 4):
 
 
 def analizar(datos):
-    
-    return {
-        "global" : analisis_global(datos),
-        "local" : analisis_local(datos)
+
+    resultado = {
+        "global": analisis_global(datos),
+        "local": analisis_local(datos)
     }
+
+    return resultado
