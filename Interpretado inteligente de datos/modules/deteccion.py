@@ -43,18 +43,15 @@ def detectar_anomalias(datos, resultado_global):
     intercepto = resultado_global["intercepción con eje y"]
 
     y_estimados = pendiente * x + intercepto
-    diferencias = y - y_estimados          # Positivo = ganó más de lo esperado; Negativo = ganó menos
+    diferencias = y - y_estimados
     residuos = np.abs(diferencias)
 
     mediana = float(np.median(residuos))
     mad = float(np.median(np.abs(residuos - mediana)))
 
-    # Si todos los puntos caen casi exactos en la recta, no hay anomalías
     if mad == 0 and mediana == 0:
         return []
-
     limite = mediana + 2 * 1.4826 * mad if mad > 0 else mediana * 1.5
-
     anomalias = []
     for i in range(len(x)):
         if residuos[i] > limite:
@@ -77,8 +74,6 @@ def detectar_anomalias(datos, resultado_global):
             })
 
     return anomalias
-
-
 def detectar_cambios_tendencia(resultados_locales, datos, ventana=4):
     """
     Compara ventanas locales consecutivas para identificar cambios
@@ -91,11 +86,8 @@ def detectar_cambios_tendencia(resultados_locales, datos, ventana=4):
     for i in range(1, len(resultados_locales)):
         anterior = resultados_locales[i - 1]
         actual = resultados_locales[i]
-
         m_ant = anterior["pendiente"]
         m_act = actual["pendiente"]
-
-        # Compatible tanto si analisis.py ya incluye 'inicio'/'fin' como si no
         inicio_act = actual.get("inicio", i)
         fin_act = min(actual.get("fin", i + ventana - 1), len(x) - 1)
 
