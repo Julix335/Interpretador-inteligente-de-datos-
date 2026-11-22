@@ -166,6 +166,8 @@ def main():
     print("       PROGRAMA FINALIZADO")
     print("======================================")
 
+    analisis = analizar(datos)
+
 
 if __name__ == "__main__":
     main()
