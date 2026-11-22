@@ -1,8 +1,3 @@
-datos = {
-    "x" : [1, 2, 3, 4, 5, 6, 7, 8],
-    "y" : [100, 120, 140, 160, 90, 70, 75, 80]
-}
-
 def modelo_lineal(x, y):
 
     n = len(x)
@@ -29,11 +24,11 @@ def modelo_lineal(x, y):
     resultado ={
         "modelo" : "Lineal",
         "pendiente" : pendiente,
-        "intercepción con eje y" : intercepcion,
+        "intercepcion" : intercepcion,
         "coeficientes" : [pendiente, intercepcion],
-        "funcion" : f"y = {pendiente:.2f}x + {intercepcion:.2f}",
         "r2" : None,
-        "tendencia" : None
+        "tendencia" : None,
+        "irregularidades_x" : None
     }
     return resultado, y_estimados
 
@@ -65,11 +60,36 @@ def clacificar_tendencia(m, y, r2):
     if m > tolerancia:
         return "Crecimiento"
 
-    elif m < tolerancia:
+    elif m < -tolerancia:
         return "Decrecimiento"
 
     else:
         return "Estabilidad"
+
+def deteccion_irregularidades_x(x):
+
+    dx = []
+
+    for i in range(len(x) - 1):
+        dx.append(x[i+1] - x[i])
+
+    if len(dx) == 0:
+        return []
+
+    promedio_dx = sum(dx) / len(dx)
+
+    irregularidades = []
+
+    for indice, intervalo in enumerate(dx):
+        if intervalo > promedio_dx * 2:
+            irregularidad = {
+                "inicio_irregularidad" : x[indice],
+                "final_irregularidad" : x[indice + 1],
+                "brecha" : intervalo
+            }
+            irregularidades.append(irregularidad)
+
+    return irregularidades 
 
 def analisis_global(datos):
 
@@ -82,8 +102,11 @@ def analisis_global(datos):
 
     tendencia = clacificar_tendencia(resultados["pendiente"], y, r2)
 
+    irregularidades = deteccion_irregularidades_x(x)
+
     resultados["r2"] = r2
     resultados["tendencia"] = tendencia
+    resultados["irregularidades_x"] = irregularidades
 
     return resultados
 
@@ -100,20 +123,22 @@ def analisis_local(datos, ventana = 4):
     resultados = []
 
     for i in range(len(x) - ventana + 1):
-        x_local = x[i:i + ventana]
-        y_local = y[i:i + ventana]
+        datos_locales ={
+            "x" : x[i:i + ventana],
+            "y" : y[i:i + ventana]
+        }
 
-        resultado, y_estimado = modelo_lineal(x_local, y_local)
+        resultado = {
+            "ventana" : i + 1,
+            "inicio" : x[i],
+            "final" : x[i + ventana - 1],
+            "datos analizados" : datos_locales
+        }
 
-        r2 = calcular_r2(y_local, y_estimado)
+        analisis = analisis_global(datos_locales)
 
-        tendencia = clacificar_tendencia(resultado["pendiente"], y_local, r2)
+        resultado.update(analisis)
 
-        resultado["r2"] = r2
-        resultado["tendencia"] = tendencia
         resultados.append(resultado)
 
     return resultados
-
-b = analisis_local(datos)
-print(b)
