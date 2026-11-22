@@ -11,7 +11,10 @@ from modules.deteccion import (
     detectar_saltos_tiempo,
     evaluar_modelo_global,
 )
-from modules.analisis import analizar, analisis_global, analisis_local
+from modules.analisis import (
+analisis_global, 
+analisis_local
+)
 from modules.graficas import graficar_global, graficar_local
 
 
@@ -108,11 +111,10 @@ def main():
             print("Respuesta no válida. Escriba s o n.")
 
     # --- Bloque de análisis, evaluación, detección y gráficas ---
-    ventana = 4
     resultado_global = analisis_global(datos)
 
     try:
-        resultados_locales = analisis_local(datos, ventana=ventana)
+        resultados_locales = analisis_local(datos)
     except ValueError as error:
         print("\nAviso:", error)
         resultados_locales = []
