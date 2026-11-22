@@ -142,13 +142,3 @@ def analisis_local(datos, ventana = 4):
         resultados.append(resultado)
 
     return resultados
-
-
-def analizar(datos):
-
-    resultado = {
-        "global": analisis_global(datos),
-        "local": analisis_local(datos)
-    }
-
-    return resultado
