@@ -11,6 +11,9 @@ from modules.deteccion import (
     detectar_saltos_tiempo,
     evaluar_modelo_global,
 )
+from modules.analisis import (
+    analizar
+)
 from modules.graficas import graficar_global, graficar_local
 
 # Si el archivo de tu compañero ya tiene estas funciones listas, descomenta
