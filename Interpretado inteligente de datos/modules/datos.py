@@ -11,7 +11,8 @@ def crear_conjunto(nombre_x, nombre_y):
         "nombre_y": validar_nombre(nombre_y),
         "x": [],
         "y": [],
-        "matriz": []
+        "matriz": [],
+        "ultimo_x": None
     }
 
     return datos
@@ -20,6 +21,7 @@ def crear_conjunto(nombre_x, nombre_y):
 def agregar_punto(datos, x, y):
 
     x, y = validar_punto(x, y, datos)
+    datos["ultimo_x"] = x
 
     datos["x"].append(x)
     datos["y"].append(y)
