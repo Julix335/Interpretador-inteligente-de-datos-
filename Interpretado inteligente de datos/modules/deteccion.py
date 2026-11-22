@@ -10,7 +10,7 @@ def evaluar_modelo_global(datos, resultado_global):
     y = np.asarray(datos["y"], dtype=float)
 
     pendiente = resultado_global["pendiente"]
-    intercepto = resultado_global["intercepción con eje y"]
+    intercepto = resultado_global["intercepcion"]
     y_estimados = pendiente * x + intercepto
 
     if len(y) >= 2 and np.var(y) > 0:
@@ -40,7 +40,7 @@ def detectar_anomalias(datos, resultado_global):
         return []
 
     pendiente = resultado_global["pendiente"]
-    intercepto = resultado_global["intercepción con eje y"]
+    intercepto = resultado_global["intercepcion"]
 
     y_estimados = pendiente * x + intercepto
     diferencias = y - y_estimados
@@ -51,7 +51,9 @@ def detectar_anomalias(datos, resultado_global):
 
     if mad == 0 and mediana == 0:
         return []
+
     limite = mediana + 2 * 1.4826 * mad if mad > 0 else mediana * 1.5
+
     anomalias = []
     for i in range(len(x)):
         if residuos[i] > limite:
@@ -74,6 +76,8 @@ def detectar_anomalias(datos, resultado_global):
             })
 
     return anomalias
+
+
 def detectar_cambios_tendencia(resultados_locales, datos, ventana=4):
     """
     Compara ventanas locales consecutivas para identificar cambios
@@ -86,22 +90,24 @@ def detectar_cambios_tendencia(resultados_locales, datos, ventana=4):
     for i in range(1, len(resultados_locales)):
         anterior = resultados_locales[i - 1]
         actual = resultados_locales[i]
+
         m_ant = anterior["pendiente"]
         m_act = actual["pendiente"]
-        inicio_act = actual.get("inicio", i)
-        fin_act = min(actual.get("fin", i + ventana - 1), len(x) - 1)
+        indice_inicio = i
+        indice_fin = min(i + ventana - 1, len(x) - 1)
+        x_ref = actual.get("final", x[indice_fin])
 
         if m_ant > 0 and m_act < 0:
             cambios.append({
                 "tipo": "Cambio de crecimiento a decrecimiento",
                 "ventana": i + 1,
-                "indice_inicio": inicio_act,
-                "indice_fin": fin_act,
-                "x_referencia": x[fin_act],
+                "indice_inicio": indice_inicio,
+                "indice_fin": indice_fin,
+                "x_referencia": x_ref,
                 "pendiente_anterior": m_ant,
                 "pendiente_actual": m_act,
                 "mensaje": (
-                    f"Cambio de crecimiento a decrecimiento hacia {nombre_x} {x[fin_act]:g} "
+                    f"Cambio de crecimiento a decrecimiento hacia {nombre_x} {x_ref:g} "
                     f"(pendiente pasó de {m_ant:+.2f} a {m_act:+.2f})."
                 ),
             })
@@ -109,13 +115,13 @@ def detectar_cambios_tendencia(resultados_locales, datos, ventana=4):
             cambios.append({
                 "tipo": "Cambio de decrecimiento a crecimiento",
                 "ventana": i + 1,
-                "indice_inicio": inicio_act,
-                "indice_fin": fin_act,
-                "x_referencia": x[fin_act],
+                "indice_inicio": indice_inicio,
+                "indice_fin": indice_fin,
+                "x_referencia": x_ref,
                 "pendiente_anterior": m_ant,
                 "pendiente_actual": m_act,
                 "mensaje": (
-                    f"Cambio de decrecimiento a crecimiento hacia {nombre_x} {x[fin_act]:g} "
+                    f"Cambio de decrecimiento a crecimiento hacia {nombre_x} {x_ref:g} "
                     f"(pendiente pasó de {m_ant:+.2f} a {m_act:+.2f})."
                 ),
             })
