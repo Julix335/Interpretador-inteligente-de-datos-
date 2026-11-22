@@ -112,7 +112,7 @@ def main():
 
     # --- Bloque de análisis, evaluación, detección y gráficas ---
     resultado_global = analisis_global(datos)
-
+    
     try:
         resultados_locales = analisis_local(datos)
     except ValueError as error:
