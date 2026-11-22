@@ -11,14 +11,8 @@ from modules.deteccion import (
     detectar_saltos_tiempo,
     evaluar_modelo_global,
 )
-from modules.analisis import (
-    analizar
-)
+from modules.analisis import analizar, analisis_global, analisis_local
 from modules.graficas import graficar_global, graficar_local
-
-# Si el archivo de tu compañero ya tiene estas funciones listas, descomenta
-# y ajusta los nombres si se llaman distinto en modules/analisis.py:
-# from modules.analisis import analisis_global, analisis_local
 
 
 def solicitar_cantidad():
@@ -114,38 +108,40 @@ def main():
             print("Respuesta no válida. Escriba s o n.")
 
     # --- Bloque de análisis, evaluación, detección y gráficas ---
-    # Asegúrate de que `datos` tenga las claves "x" y "y" (o ajusta aquí si se llaman distinto).
     ventana = 4
+    resultado_global = analisis_global(datos)
 
-    # Descomenta estas dos líneas cuando conecten modules/analisis.py:
-    # resultado_global = analisis_global(datos)
-    # resultados_locales = analisis_local(datos, ventana=ventana)
+    try:
+        resultados_locales = analisis_local(datos, ventana=ventana)
+    except ValueError as error:
+        print("\nAviso:", error)
+        resultados_locales = []
 
-    # Por si aún no conectan analisis.py, evitamos que se rompa si no existen esas variables:
-    if "resultado_global" in locals() and "resultados_locales" in locals():
-        evaluacion = evaluar_modelo_global(datos, resultado_global)
-        anomalias = detectar_anomalias(datos, resultado_global)
-        cambios = detectar_cambios_tendencia(resultados_locales, datos, ventana=ventana)
-        saltos = detectar_saltos_tiempo(datos)
+    evaluacion = evaluar_modelo_global(datos, resultado_global)
+    anomalias = detectar_anomalias(datos, resultado_global)
+    cambios = detectar_cambios_tendencia(resultados_locales, datos, ventana=ventana)
+    saltos = detectar_saltos_tiempo(datos)
 
-        print(f"\nR² global: {evaluacion['r2']:.4f} | MAE: ${evaluacion['mae']:,.2f}")
+    print(f"\nR² global: {evaluacion['r2']:.4f} | MAE: ${evaluacion['mae']:,.2f}")
 
-        if saltos:
-            print("\n--- Avisos de tiempo ---")
-            for s in saltos:
-                print("-", s["mensaje"])
+    if saltos:
+        print("\n--- Avisos de tiempo ---")
+        for s in saltos:
+            print("-", s["mensaje"])
 
-        if anomalias:
-            print("\n--- Anomalías detectadas ---")
-            for a in anomalias:
-                print("-", a["mensaje"])
+    if anomalias:
+        print("\n--- Anomalías detectadas ---")
+        for a in anomalias:
+            print("-", a["mensaje"])
 
-        if cambios:
-            print("\n--- Cambios de tendencia ---")
-            for c in cambios:
-                print("-", c["mensaje"])
+    if cambios:
+        print("\n--- Cambios de tendencia ---")
+        for c in cambios:
+            print("-", c["mensaje"])
 
-        graficar_global(datos, resultado_global, anomalias=anomalias, evaluacion=evaluacion)
+    graficar_global(datos, resultado_global, anomalias=anomalias, evaluacion=evaluacion)
+
+    if resultados_locales:
         graficar_local(
             datos,
             resultados_locales,
@@ -155,18 +151,11 @@ def main():
             ventana=ventana,
         )
     else:
-        saltos = detectar_saltos_tiempo(datos)
-        if saltos:
-            print("\n--- Avisos de tiempo ---")
-            for s in saltos:
-                print("-", s["mensaje"])
-        print("\nNota: conecta `resultado_global` y `resultados_locales` desde `modules.analisis` para activar detección completa y gráficas.")
+        print("\nNota: se necesitan al menos", ventana, "puntos para mostrar la gráfica local por ventanas.")
 
     print("\n======================================")
     print("       PROGRAMA FINALIZADO")
     print("======================================")
-
-    analisis = analizar(datos)
 
 
 if __name__ == "__main__":
