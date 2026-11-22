@@ -1,65 +1,48 @@
-from modules.validacion import (
-    validar_nombre,
-    validar_punto
-)
+
+import math
 
 
-def crear_conjunto(nombre_x, nombre_y):
+def validar_nombre(nombre):
+    if not isinstance(nombre, str) or not nombre.strip():
+        raise ValueError("El nombre no puede estar vacío.")
 
-    datos = {
-        "nombre_x": validar_nombre(nombre_x),
-        "nombre_y": validar_nombre(nombre_y),
-        "x": [],
-        "y": [],
-        "matriz": [],
-        "ultimo_x": None
-    }
-
-    return datos
+    return nombre.strip()
 
 
-def agregar_punto(datos, x, y):
+def validar_numero(valor, nombre_variable):
+    try:
+        numero = float(valor)
 
-    x, y = validar_punto(x, y, datos)
-    datos["ultimo_x"] = x
+    except (ValueError, TypeError):
+        raise ValueError(
+            f"{nombre_variable} debe ser numérico."
+        )
 
-    datos["x"].append(x)
-    datos["y"].append(y)
+    if not math.isfinite(numero):
+        raise ValueError(
+            f"{nombre_variable} debe ser un número finito."
+        )
 
-    # Ordenar los puntos según X
-    puntos = sorted(zip(datos["x"], datos["y"]))
-
-    datos["x"] = [punto[0] for punto in puntos]
-    datos["y"] = [punto[1] for punto in puntos]
-
-    # Actualizar la matriz
-    datos["matriz"] = [
-        [punto[0], punto[1]]
-        for punto in puntos
-    ]
-
-    return datos
+    return numero
 
 
-def mostrar_datos(datos):
+def validar_punto(x, y, datos):
+    x = validar_numero(x, "X")
+    y = validar_numero(y, "Y")
 
-    print("\n========== DICCIONARIO ==========")
-    print(datos)
+    # Evitar valores de X repetidos
+    if x in datos["x"]:
+        raise ValueError(
+            "Ya existe un punto con ese valor de X."
+        )
 
-    print("\n========== MATRIZ ==========")
+    # Validar la distancia respecto al último X ingresado
+    ultimo_x = datos["ultimo_x"]
 
-    for fila in datos["matriz"]:
-        print(fila)
+    if ultimo_x is not None and abs(x - ultimo_x) > 12:
+        raise ValueError(
+            "El nuevo valor de X no puede estar a más "
+            "de 12 unidades del último X ingresado."
+        )
 
-def contar_puntos(datos):
-    """
-    Cuenta la cantidad de puntos registrados.
-    """
-    return len(datos["x"])
-
-
-def consultar_puntos(datos):
-    """
-    Devuelve todos los puntos almacenados.
-    """
-    return list(zip(datos["x"], datos["y"]))
+    return x, y
