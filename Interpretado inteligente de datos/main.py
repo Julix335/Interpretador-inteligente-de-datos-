@@ -39,137 +39,129 @@ def solicitar_cantidad():
         except ValueError:
             print("Error: debe ingresar un número entero.")
 
-
-def main():
-
-    print("======================================")
-    print("   INTERPRETADOR INTELIGENTE DE DATOS")
-    print("======================================")
+print("======================================")
+print("   INTERPRETADOR INTELIGENTE DE DATOS")
+print("======================================")
 
     # Solicitar nombres de las variables
-    nombre_x = input("\nNombre de la variable X: ")
-    nombre_y = input("Nombre de la variable Y: ")
+nombre_x = input("\nNombre de la variable independiente: ")
+nombre_y = input("Nombre de la variable dependiente: ")
 
-    try:
-        datos = crear_conjunto(nombre_x, nombre_y)
+try:
+    datos = crear_conjunto(nombre_x, nombre_y)
 
-    except ValueError as error:
-        print("\nError:", error)
-        return
+except ValueError as error:
+    print("\nError:", error)
 
     # Solicitar cantidad de puntos
-    cantidad = solicitar_cantidad()
+cantidad = solicitar_cantidad()
 
     # Ingresar los puntos iniciales
-    for i in range(cantidad):
+for i in range(cantidad):
 
-        print(f"\n--- Punto {i + 1} ---")
+    print(f"\n--- Punto {i + 1} ---")
 
-        while True:
-            try:
-                x = input(f"Ingrese {nombre_x}: ")
-                y = input(f"Ingrese {nombre_y}: ")
-
-                agregar_punto(datos, x, y)
-
-                print("Punto agregado correctamente.")
-                break
-
-            except ValueError as error:
-                print("Error:", error)
-
-    # Mostrar los datos almacenados
-    mostrar_datos(datos)
-    print("\n========== RESUMEN ==========")
-    print("Cantidad de puntos:", contar_puntos(datos))
-    print("Puntos registrados:", consultar_puntos(datos))
-
-    # Permitir agregar nuevos puntos
     while True:
+        try:
+            x = input(f"Ingrese {nombre_x}: ")
+            y = input(f"Ingrese {nombre_y}: ")
 
-        respuesta = input(
-            "\n¿Desea agregar otro punto? (s/n): "
-        ).strip().lower()
+            agregar_punto(datos, x, y)
 
-        if respuesta == "n":
+            print("Punto agregado correctamente.")
             break
 
-        elif respuesta == "s":
+        except ValueError as error:
+            print("Error:", error)
 
-            try:
-                x = input(f"Ingrese {nombre_x}: ")
-                y = input(f"Ingrese {nombre_y}: ")
+    # Mostrar los datos almacenados
+mostrar_datos(datos)
+print("\n========== RESUMEN ==========")
+print("Cantidad de puntos:", contar_puntos(datos))
+print("Puntos registrados:", consultar_puntos(datos))
 
-                agregar_punto(datos, x, y)
+    # Permitir agregar nuevos puntos
+while True:
 
-                print("\nPunto agregado correctamente.")
+    respuesta = input(
+        "\n¿Desea agregar otro punto? (s/n): "
+    ).strip().lower()
 
-                mostrar_datos(datos)
+    if respuesta == "n":
+        break
 
-            except ValueError as error:
-                print("Error:", error)
+    elif respuesta == "s":
 
-        else:
-            print("Respuesta no válida. Escriba s o n.")
+        try:
+            x = input(f"Ingrese {nombre_x}: ")
+            y = input(f"Ingrese {nombre_y}: ")
+
+            agregar_punto(datos, x, y)
+
+            print("\nPunto agregado correctamente.")
+
+            mostrar_datos(datos)
+
+        except ValueError as error:
+            print("Error:", error)
+
+    else:
+        print("Respuesta no válida. Escriba s o n.")
 
     # --- Bloque de análisis, evaluación, detección y gráficas ---
-    resultado_global = analisis_global(datos)
+resultado_global = analisis_global(datos)
 
-    print("\n===== ANALISIS GLOBAL =====")
-    print("Modelo:", resultado_global["modelo"])
-    print("Pendiente:", resultado_global["pendiente"])
-    print("Intercepción:", resultado_global["intercepcion"])
-    print("R²:", resultado_global["r2"])
-    print("Tendencia:", resultado_global["tendencia"])
+print("\n===== ANALISIS GLOBAL =====")
+print("Modelo:", resultado_global["modelo"])
+print("Pendiente:", resultado_global["pendiente"])
+print("Intercepción:", resultado_global["intercepcion"])
+print("R²:", resultado_global["r2"])
+print("Tendencia:", resultado_global["tendencia"])
     
-    ventana = 4
+ventana = 4
 
-    try:
-        resultados_locales = analisis_local(datos, ventana=ventana)
-    except ValueError as error:
-        print("\nAviso:", error)
-        resultados_locales = []
+try:
+    resultados_locales = analisis_local(datos, ventana=ventana)
+except ValueError as error:
+    print("\nAviso:", error)
+    resultados_locales = []
 
-    evaluacion = evaluar_modelo_global(datos, resultado_global)
-    anomalias = detectar_anomalias(datos, resultado_global)
-    cambios = detectar_cambios_tendencia(resultados_locales, datos, ventana=ventana)
-    saltos = detectar_saltos_tiempo(datos)
+evaluacion = evaluar_modelo_global(datos, resultado_global)
+anomalias = detectar_anomalias(datos, resultado_global)
+cambios = detectar_cambios_tendencia(resultados_locales, datos, ventana=ventana)
+saltos = detectar_saltos_tiempo(datos)
 
-    print(f"\nR² global: {evaluacion['r2']:.4f} | MAE: ${evaluacion['mae']:,.2f}")
+print(f"\nR² global: {evaluacion['r2']:.4f} | MAE: ${evaluacion['mae']:,.2f}")
 
-    if saltos:
-        print("\n--- Avisos de tiempo ---")
-        for s in saltos:
-            print("-", s["mensaje"])
+if saltos:
+    print("\n--- Avisos de tiempo ---")
+    for s in saltos:
+        print("-", s["mensaje"])
 
-    if anomalias:
-        print("\n--- Anomalías detectadas ---")
-        for a in anomalias:
-            print("-", a["mensaje"])
+if anomalias:
+    print("\n--- Anomalías detectadas ---")
+    for a in anomalias:
+        print("-", a["mensaje"])
 
-    if cambios:
-        print("\n--- Cambios de tendencia ---")
-        for c in cambios:
-            print("-", c["mensaje"])
+if cambios:
+    print("\n--- Cambios de tendencia ---")
+    for c in cambios:
+        print("-", c["mensaje"])
 
-    graficar_global(datos, resultado_global, anomalias=anomalias, evaluacion=evaluacion)
+graficar_global(datos, resultado_global, anomalias=anomalias, evaluacion=evaluacion)
 
-    if resultados_locales:
-        graficar_local(
-            datos,
-            resultados_locales,
-            anomalias=anomalias,
-            cambios=cambios,
-            resultado_global=resultado_global,
-            ventana=ventana,
-        )
-    else:
-        print("\nNota: se necesitan al menos", ventana, "puntos para mostrar la gráfica local por ventanas.")
+if resultados_locales:
+    graficar_local(
+        datos,
+        resultados_locales,
+        anomalias=anomalias,
+        cambios=cambios,
+        resultado_global=resultado_global,
+        ventana=ventana,
+    )
+else:
+    print("\nNota: se necesitan al menos", ventana, "puntos para mostrar la gráfica local por ventanas.")
 
-    print("\n======================================")
-    print("       PROGRAMA FINALIZADO")
-    print("======================================")
-
-
-if __name__ == "__main__":
-    main()
+print("\n======================================")
+print("       PROGRAMA FINALIZADO")
+print("======================================")
